@@ -1,6 +1,7 @@
 import random
 import math
 from Bio.SeqUtils import GC
+from Bio.Restriction import *
 
 class OrthogonalBarcode:
 
@@ -25,6 +26,12 @@ class OrthogonalBarcode:
 		sequence = self.join_and_shuffle(gc_sequence+at_sequence)
 		if(self.motif_check(sequence) == True):
 			return self.generate_random_sequence()
+		elif(self.restriction_site_check(sequence) == True):
+			return self.generate_random_sequence()
+		elif(self.start_check(sequence) == True):
+			return self.generate_random_sequence()
+		elif(self.end_check(sequence) == True):
+			return self.generate_random_sequence()
 		else:
 			return sequence
 
@@ -43,12 +50,24 @@ class OrthogonalBarcode:
 		res = [ele for ele in self.avoid_motifs if(ele in sequence)]
 		return bool(res)
 
+	def restriction_site_check(self,sequence):
+		res = [ele for ele in self.avoid_rs if(ele.site in sequence)]
+		return bool(res)
+
+	def start_check(self, sequence):
+		res = [ele for ele in self.avoid_start if(ele == sequence[0:len(ele)])]
+		return bool(res)
+
+	def end_check(self, sequence):
+		res = [ele for ele in self.avoid_end if(ele == sequence[-len(ele)])]
+		return bool(res)
 
 
 # Testing
 barcodes = OrthogonalBarcode()
-barcodes.length=30
+barcodes.length=50
 barcodes.gc=60
 barcodes.amount=50
+barcodes.avoid_rs=[EcoRI,BamHI,NheI,XhoI,KasI]
 barcodes.generate_sequences()
 print(barcodes.barcodes)
