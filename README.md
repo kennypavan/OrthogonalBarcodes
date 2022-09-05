@@ -15,10 +15,10 @@ A simple Python class for generating custom orthogonal DNA/RNA barcodes.
 - Avoid barcode homology to organism of interest.
 
 
-## Installation (coming soon)
+## Installation 
 
 ```
-pip install orthogonal-barcodes
+pip install OrthogonalBarcodes
 ```
 
 
