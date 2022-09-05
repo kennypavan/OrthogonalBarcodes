@@ -25,7 +25,9 @@ pip install OrthogonalBarcodes
 ## Quickstart
 
 ```python
-barcodes = OrthogonalBarcode()
+from OrthogonalBarcodes import OrthogonalBarcode
+
+barcodes = OrthogonalBarcode.OrthogonalBarcode()
 barcodes.length=25
 barcodes.gc=50
 barcodes.amount=10
@@ -46,8 +48,10 @@ print(barcodes.barcodes)
 ## Full Usage
 
 ```python
+from OrthogonalBarcodes import OrthogonalBarcode
+
 # Instantiate the class and set required/optional properties below.
-barcodes = OrthogonalBarcode()
+barcodes = OrthogonalBarcode.OrthogonalBarcode()
 
 # Required — The length of each barcode (Default:20)
 barcodes.length=25

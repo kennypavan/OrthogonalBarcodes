@@ -90,16 +90,3 @@ class OrthogonalBarcode:
 				if ( ((alignment.score/self.length)*100) >= self.ooi_homology_threshold ):
 					return True
 
-
-
-# Basic Usage
-# barcodes = OrthogonalBarcode()
-# barcodes.length=25
-# barcodes.gc=50
-# barcodes.amount=10
-# barcodes.hamming_distance=4
-# barcodes.ooi_file='tests/test_ooi.fasta'
-# barcodes.ooi_homology_threshold = 40
-# barcodes.avoid_rs=[EcoRI,BamHI,NheI,XhoI,KasI]
-# barcodes.generate_barcodes()
-# print(barcodes.barcodes)
