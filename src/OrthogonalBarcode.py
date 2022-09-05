@@ -1,18 +1,22 @@
 import random
 import math
+import os
+from Bio import SeqIO
 from Bio.SeqUtils import GC
 from Bio.Restriction import *
+from Bio import pairwise2
+
+from Bio.Seq import Seq 
 
 class OrthogonalBarcode:
 
 	def __init__(self):
-		self.amount = 2 #amount of barcodes to generate
+		self.amount = 1 #amount of barcodes to generate
 		self.length = 20 #default barcode length
 		self.gc = 50 #gc percentage
-		self.ooi = None #organism of interest
-		self.ooi_homology_threshold = 50 #max homology to the ooi
-		self.hamming_distance = 0 #distance of each barcode
-		self.self_dimer = 10 #self-dimerization free energy
+		self.ooi_file = None #organism of interest
+		self.ooi_homology_threshold = 50 #default maximum barcode homology to any part of the ooi
+		self.hamming_distance = 0 #distance between each barcode
 		self.avoid_motifs = ["AAAA","TTTT","CGCGCGCG","ATATATAT"]
 		self.avoid_start = ["ATATAT"] #avoid starting
 		self.avoid_end = ["ATATAT"] #avoid ending
@@ -20,19 +24,17 @@ class OrthogonalBarcode:
 		self.barcodes = []
 
 	def generate_random_sequence(self):
-		"""Generate a random sequence of defined length"""
 		gc_sequence = ''.join(random.choices(['G','C'], k=math.ceil(self.length*(self.gc/100))))
 		at_sequence = ''.join(random.choices(['A','T'], k=math.floor(self.length*(1-(self.gc/100)))))
 		return self.join_and_shuffle(gc_sequence+at_sequence)
 
 	def join_and_shuffle(self,sequence):
-		"""Join and randomly suffle two balanced AT and GC strings"""
 		return ''.join(random.sample(sequence,len(sequence)))
 
 	def calculate_gc_content(self,sequence):
 		return GC(sequence)
 
-	def generate_sequences(self):
+	def generate_barcodes(self):
 		while len(self.barcodes) < self.amount:
 			sequence = self.generate_random_sequence()
 			if(self.motif_check(sequence) == True):
@@ -45,8 +47,11 @@ class OrthogonalBarcode:
 				pass
 			elif(self.hamming_distance_check(sequence) == True):
 				pass
+			elif(self.ooi_file != None and self.filter_ooi_fasta_sequences(sequence) == True):
+				pass	
 			else:
 				self.barcodes.append(sequence)
+				print (len(self.barcodes)," of ",self.amount,' created...')
 
 	def motif_check(self,sequence):
 		res = [ele for ele in self.avoid_motifs if(ele in sequence)]
@@ -79,13 +84,22 @@ class OrthogonalBarcode:
 				return True
 		return False
 
+	def filter_ooi_fasta_sequences(self,barcode):
+		for record in SeqIO.parse(os.path.abspath(self.ooi_file), "fasta"):
+			for alignment in pairwise2.align.localms(Seq(barcode),record.seq, 1, -7, -7, -7):
+				if ( ((alignment.score/self.length)*100) >= self.ooi_homology_threshold ):
+					return True
 
-# Testing
-barcodes = OrthogonalBarcode()
-barcodes.length=50
-barcodes.gc=60
-barcodes.amount=5
-barcodes.hamming_distance=5
-barcodes.avoid_rs=[EcoRI,BamHI,NheI,XhoI,KasI]
-barcodes.generate_sequences()
-print(barcodes.barcodes)
+
+
+# Basic Usage
+# barcodes = OrthogonalBarcode()
+# barcodes.length=25
+# barcodes.gc=50
+# barcodes.amount=10
+# barcodes.hamming_distance=4
+# barcodes.ooi_file='tests/test_ooi.fasta'
+# barcodes.ooi_homology_threshold = 40
+# barcodes.avoid_rs=[EcoRI,BamHI,NheI,XhoI,KasI]
+# barcodes.generate_barcodes()
+# print(barcodes.barcodes)
